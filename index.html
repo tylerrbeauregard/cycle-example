@@ -37,6 +37,8 @@
         for (var i = 0; i < number_of_points; i++) {
             permutation[i] = i;
         }
+        var small_arrow_color = "black";
+        var big_arrow_color = "black"
 
         function init() {
             window.requestAnimationFrame(draw);
@@ -165,7 +167,7 @@
             var buffer_angle = Math.PI / 6;
 
             ctx.save();
-            ctx.strokeStyle = "black";
+            ctx.strokeStyle = small_arrow_color;
             ctx.lineWidth = 10;
             ctx.beginPath();
             var x_1 = x + radius * Math.cos(angle * (points));
@@ -248,11 +250,11 @@
             var circ_radius = 30 + Math.sqrt(
                 (x_2 - x_1) ** 2 + (y_2 - y_1) ** 2) / 2;
 
-            var top_x = x_circ + (circ_radius + 5) * Math.cos(interior_angle - Math.PI + buffer_angle)-5;
-            var top_y = y_circ + (circ_radius + 5) * Math.sin(interior_angle - Math.PI + buffer_angle)-5;
+            var top_x = x_circ + (circ_radius + 5) * Math.cos(interior_angle - Math.PI + buffer_angle) - 5;
+            var top_y = y_circ + (circ_radius + 5) * Math.sin(interior_angle - Math.PI + buffer_angle) - 5;
 
-            var bottom_x = x_circ + (circ_radius + 5) * Math.cos(interior_angle - buffer_angle)+40;
-            var bottom_y = y_circ + (circ_radius + 5) * Math.sin(interior_angle - buffer_angle)+40;
+            var bottom_x = x_circ + (circ_radius + 5) * Math.cos(interior_angle - buffer_angle) + 40;
+            var bottom_y = y_circ + (circ_radius + 5) * Math.sin(interior_angle - buffer_angle) + 40;
 
             return (mouse_x <= bottom_x
                 && mouse_x >= top_x
@@ -260,16 +262,26 @@
                 && mouse_y <= bottom_y);
         }
 
+        
+
         function mouse_move(canvas, event) {
             let rect = canvas.getBoundingClientRect();
             let mouse_x = event.clientX - rect.left;
             let mouse_y = event.clientY - rect.top;
             var points = number_of_points;
 
-            if (test_big_arrow(mouse_x, mouse_y) || test_small_arrow(mouse_x,mouse_y)) {
+            if (test_big_arrow(mouse_x, mouse_y) ) {
                 canvas.style.cursor = "pointer";
+                big_arrow_color = "red";
+                small_arrow_color = "black";
+            } else if (test_small_arrow(mouse_x, mouse_y)) {
+                canvas.style.cursor = "pointer";
+                small_arrow_color = "red";
+                big_arrow_color = "black";
             } else {
                 canvas.style.cursor = "default";
+                small_arrow_color = "black";
+                big_arrow_color = "black";
             }
         }
 
@@ -280,9 +292,9 @@
             var points = number_of_points;
 
             if (test_big_arrow(mouse_x, mouse_y)) {
-              permute_big();  
+                permute_big();
             } else if (test_small_arrow(mouse_x, mouse_y)) {
-              permute_small();
+                permute_small();
             }
         }
 
@@ -302,7 +314,7 @@
             var angle = 2 * Math.PI / points;
 
             // Drawing the small half circle between 1 and 2
-            ctx.strokeStyle = "black";
+            ctx.strokeStyle = big_arrow_color;
             // Maybe make thick
             ctx.lineWidth = 10;
             ctx.beginPath();
