@@ -155,6 +155,189 @@
             ctx.restore();
         }
 
+        function draw_small_button(ctx, points, radius, center_x, center_y) {
+            var x = center_x;
+            var y = center_y;
+            var small_radius = 0.7 * radius;
+            var angle = 2 * Math.PI / points;
+
+            var interior_angle = (points - 2) * Math.PI / (2 * points);
+            var buffer_angle = Math.PI / 6;
+
+            ctx.save();
+            ctx.strokeStyle = "black";
+            ctx.lineWidth = 10;
+            ctx.beginPath();
+            var x_1 = x + radius * Math.cos(angle * (points));
+            var y_1 = y + radius * Math.sin(angle * (points));
+            var x_2 = x + radius * Math.cos(angle * (points - 1));
+            var y_2 = y + radius * Math.sin(angle * (points - 1));
+            var x_circ = (x_1 + x_2) / 2;
+            var y_circ = (y_1 + y_2) / 2;
+            var circ_radius = 30 + Math.sqrt(
+                (x_2 - x_1) ** 2 + (y_2 - y_1) ** 2) / 2;
+            ctx.arc(x_circ,
+                y_circ,
+                circ_radius,
+                interior_angle - Math.PI + buffer_angle,
+                interior_angle - buffer_angle,
+                false);
+
+            var top_x = x_circ + (circ_radius + 5) * Math.cos(interior_angle - Math.PI + buffer_angle);
+            var top_y = y_circ + (circ_radius + 5) * Math.sin(interior_angle - Math.PI + buffer_angle);
+
+            ctx.moveTo(top_x - 5, top_y);
+            ctx.lineTo(top_x + 30, top_y);
+
+            ctx.moveTo(top_x, top_y);
+            ctx.lineTo(top_x, top_y + 30);
+
+            var bottom_x = x_circ + (circ_radius + 5) * Math.cos(interior_angle - buffer_angle);
+            var bottom_y = y_circ + (circ_radius + 5) * Math.sin(interior_angle - buffer_angle);
+
+            ctx.moveTo(bottom_x - 5, bottom_y - 5);
+            ctx.lineTo(bottom_x + 30 - 5, bottom_y - 5);
+
+            ctx.moveTo(bottom_x - 5, bottom_y);
+            ctx.lineTo(bottom_x - 5, bottom_y - 30);
+
+            ctx.stroke();
+            ctx.restore();
+        }
+
+        function test_big_arrow(mouse_x, mouse_y) {
+            var points = number_of_points;
+            var x = 300;
+            var y = 250;
+            var radius = 200;
+            var angle = 2 * Math.PI / points;
+            var circ_radius = 50 + radius;
+            var arrow_start_angle = 2 * Math.PI * 6.3 / 12;
+            var arrow_end_angle = 2 * Math.PI * 7.3 / 12;
+            var radius_end_point_x = x + Math.cos(arrow_end_angle) * circ_radius;
+            var radius_end_point_y = y + Math.sin(arrow_end_angle) * circ_radius;
+
+            // Check if mouse is over big button
+            var right_x = radius_end_point_x + 10;
+            var left_x = x + Math.cos(arrow_start_angle) * circ_radius - 10;
+            var top_y = radius_end_point_y - 10;
+            var bottom_y = y + Math.sin(arrow_start_angle) * circ_radius + 10;
+
+            return (mouse_x <= right_x
+                && mouse_x >= left_x
+                && mouse_y >= top_y
+                && mouse_y <= bottom_y);
+        }
+
+        function test_small_arrow(mouse_x, mouse_y) {
+            var points = number_of_points;
+            var x = 300;
+            var y = 250;
+            var radius = 200;
+            var angle = 2 * Math.PI / points;
+
+            var interior_angle = (points - 2) * Math.PI / (2 * points);
+            var buffer_angle = Math.PI / 6;
+
+            var x_1 = x + radius * Math.cos(angle * (points));
+            var y_1 = y + radius * Math.sin(angle * (points));
+            var x_2 = x + radius * Math.cos(angle * (points - 1));
+            var y_2 = y + radius * Math.sin(angle * (points - 1));
+            var x_circ = (x_1 + x_2) / 2;
+            var y_circ = (y_1 + y_2) / 2;
+            var circ_radius = 30 + Math.sqrt(
+                (x_2 - x_1) ** 2 + (y_2 - y_1) ** 2) / 2;
+
+            var top_x = x_circ + (circ_radius + 5) * Math.cos(interior_angle - Math.PI + buffer_angle)-5;
+            var top_y = y_circ + (circ_radius + 5) * Math.sin(interior_angle - Math.PI + buffer_angle)-5;
+
+            var bottom_x = x_circ + (circ_radius + 5) * Math.cos(interior_angle - buffer_angle)+40;
+            var bottom_y = y_circ + (circ_radius + 5) * Math.sin(interior_angle - buffer_angle)+40;
+
+            return (mouse_x <= bottom_x
+                && mouse_x >= top_x
+                && mouse_y >= top_y
+                && mouse_y <= bottom_y);
+        }
+
+        function mouse_move(canvas, event) {
+            let rect = canvas.getBoundingClientRect();
+            let mouse_x = event.clientX - rect.left;
+            let mouse_y = event.clientY - rect.top;
+            var points = number_of_points;
+
+            if (test_big_arrow(mouse_x, mouse_y) || test_small_arrow(mouse_x,mouse_y)) {
+                canvas.style.cursor = "pointer";
+            } else {
+                canvas.style.cursor = "default";
+            }
+        }
+
+        function mouse_click(canvas, event) {
+            let rect = canvas.getBoundingClientRect();
+            let mouse_x = event.clientX - rect.left;
+            let mouse_y = event.clientY - rect.top;
+            var points = number_of_points;
+
+            if (test_big_arrow(mouse_x, mouse_y)) {
+              permute_big();  
+            } else if (test_small_arrow(mouse_x, mouse_y)) {
+              permute_small();
+            }
+        }
+
+        document.getElementById("canvas").addEventListener("mousemove", function (e) {
+            mouse_move(document.getElementById("canvas"), e);
+        });
+
+        document.getElementById("canvas").addEventListener("mouseup", function (e) {
+            mouse_click(document.getElementById("canvas"), e);
+        });
+
+        function draw_big_button(ctx, points, radius, center_x, center_y) {
+            ctx.save();
+            var x = center_x;
+            var y = center_y;
+            var small_radius = 0.7 * radius;
+            var angle = 2 * Math.PI / points;
+
+            // Drawing the small half circle between 1 and 2
+            ctx.strokeStyle = "black";
+            // Maybe make thick
+            ctx.lineWidth = 10;
+            ctx.beginPath();
+            // Add cosnst to radius
+            var circ_radius = 50 + radius;
+            var arrow_start_angle = 2 * Math.PI * 6.3 / 12;
+            var arrow_end_angle = 2 * Math.PI * 7.3 / 12;
+
+            ctx.arc(x, y,
+                circ_radius,
+                arrow_start_angle,
+                arrow_end_angle, false);
+            ctx.stroke();
+
+            // Arrows at 45 deg angle from radius
+            var radius_end_point_x = x + Math.cos(arrow_end_angle) * circ_radius;
+            var radius_end_point_y = y + Math.sin(arrow_end_angle) * circ_radius;
+
+            var arrow_size = 30;
+
+            var left_arrow_end_x = radius_end_point_x - arrow_size;
+            var left_arrow_end_y = radius_end_point_y;
+
+            var right_arrow_end_x = radius_end_point_x;
+            var right_arrow_end_y = radius_end_point_y + arrow_size;
+
+            ctx.moveTo(radius_end_point_x + 5, radius_end_point_y);
+            ctx.lineTo(left_arrow_end_x, left_arrow_end_y);
+            ctx.moveTo(radius_end_point_x, radius_end_point_y);
+            ctx.lineTo(right_arrow_end_x, right_arrow_end_y);
+            ctx.stroke();
+
+            ctx.restore();
+        }
+
         // Simulates multiplication by (12...n) by making a new permutation
         // whose values are the old ones shifted +1 (and looped around)
         function permute_big() {
@@ -221,6 +404,8 @@
             ctx.restore();
 
             draw_regular_poly_dots(ctx, number_of_points, 200, 300, 250);
+            draw_big_button(ctx, number_of_points, 200, 300, 250);
+            draw_small_button(ctx, number_of_points, 200, 300, 250);
             draw_legend(ctx, 520, 300);
 
             window.requestAnimationFrame(draw);
